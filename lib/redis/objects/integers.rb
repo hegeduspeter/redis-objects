@@ -65,10 +65,12 @@ class Redis
             raise Redis::Objects::MissingID, "Missing ID for non-global integer #{self.name}##{name}"
           end
         end
+      end
 
       # Instance methods that appear in your class when you include Redis::Objects.
       module InstanceMethods
       end
+
     end
   end
 end
