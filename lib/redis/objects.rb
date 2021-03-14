@@ -4,6 +4,7 @@ require 'redis'
 require 'redis/objects/connection_pool_proxy'
 
 class Redis
+  autoload :Integer,   'redis/integer'
   autoload :Counter,   'redis/counter'
   autoload :List,      'redis/list'
   autoload :Lock,      'redis/lock'
@@ -46,6 +47,7 @@ class Redis
   #
   #
   module Objects
+    autoload :Integers,   'redis/objects/integers'
     autoload :Counters,   'redis/objects/counters'
     autoload :Lists,      'redis/objects/lists'
     autoload :Locks,      'redis/objects/locks'
@@ -74,6 +76,7 @@ class Redis
         klass.extend ClassMethods
 
         # Pull in each object type
+        klass.send :include, Redis::Objects::Integers
         klass.send :include, Redis::Objects::Counters
         klass.send :include, Redis::Objects::Lists
         klass.send :include, Redis::Objects::Locks
