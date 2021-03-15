@@ -40,6 +40,10 @@ class Redis
       !redis.exists(key)
     end
 
+    def present?
+      !nil?
+    end
+
     ##
     # Math ops
     # This needs to handle +/- either actual integers or other Redis::Integers

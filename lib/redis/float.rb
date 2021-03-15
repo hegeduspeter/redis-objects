@@ -35,6 +35,10 @@ class Redis
       !redis.exists(key)
     end
 
+    def present?
+      !nil?
+    end
+
     ##
     # Math ops
     # This needs to handle +/- either actual floats or other Redis::Floats
