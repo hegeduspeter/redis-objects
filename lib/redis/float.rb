@@ -9,15 +9,10 @@ class Redis
   # class to define a float.
   #
   class Float < BaseObject
-    def initialize(key, *args)
-      super(key, *args)
-      raise ArgumentError, "Marshalling redis floats does not make sense" if @options[:marshal]
-      redis.setnx(key, @options[:default]) unless @options[:default].nil? || @options[:init] === false
-    end
-
     # Returns the current value of the float.
     def value
-      redis.get(key).to_f
+      val = redis.get(key)
+      val.nil? ? @options[:default] : val.to_f
     end
     alias_method :get, :value
 
@@ -30,7 +25,11 @@ class Redis
     ##
     # Proxy methods to help make @object.float == 10 work
     def to_s; value.to_s; end
-    alias_method :to_i, :value
+    alias_method :to_f, :value
+
+    def inspect
+      "#<Redis::Float #{value.inspect}>"
+    end
 
     def nil?
       !redis.exists(key)
@@ -42,9 +41,13 @@ class Redis
     %w(+ - == < > <= >=).each do |m|
       class_eval <<-EndOverload
         def #{m}(what)
-          value.to_i #{m} what.to_i
+          value.to_f #{m} what.to_f
         end
       EndOverload
+    end
+
+    def method_missing(*args)
+      self.value.send(*args)
     end
 
   end
