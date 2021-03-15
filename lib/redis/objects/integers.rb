@@ -3,9 +3,6 @@
 require 'redis/integer'
 class Redis
   module Objects
-    class UndefinedInteger < StandardError; end #:nodoc:
-    class MissingID < StandardError; end #:nodoc:
-
     module Integers
       def self.included(klass)
         klass.send :include, InstanceMethods
@@ -14,7 +11,6 @@ class Redis
 
       # Class methods that appear in your class when you include Redis::Objects.
       module ClassMethods
-
         # Define a new integer.  It will function like a regular instance
         # method, so it can be used alongside ActiveRecord, DataMapper, etc.
         def integer(name, options={})
@@ -30,6 +26,9 @@ class Redis
                   )
                 )
             end
+            define_method("#{name}=") do |value|
+              public_send(name).value = value.to_i
+            end
           end
 
           if options[:global]
@@ -39,31 +38,13 @@ class Redis
             define_method(name) do
               self.class.public_send(name)
             end
+            define_method("#{name}=") do |value|
+              self.class.public_send("#{name}=", value.to_i)
+            end
           else
             include mod
           end
         end
-
-        # Get the current value of the integer. It is more efficient
-        # to use the instance method if possible.
-        def get_integer(name, id=nil)
-          verify_integer_defined!(name, id)
-          redis.get(redis_field_key(name, id)).to_i
-        end
-
-        def integer_defined?(name) #:nodoc:
-          redis_objects && redis_objects.has_key?(name.to_sym)
-        end
-
-        private
-
-        def verify_integer_defined!(name, id) #:nodoc:
-          raise NoMethodError, "Undefined integer :#{name} for class #{self.name}" unless integer_defined?(name)
-          if id.nil? and !redis_objects[name][:global]
-            raise Redis::Objects::MissingID, "Missing ID for non-global integer #{self.name}##{name}"
-          end
-        end
-
       end
 
       # Instance methods that appear in your class when you include Redis::Objects.

@@ -9,15 +9,10 @@ class Redis
   # class to define a integer.
   #
   class Integer < BaseObject
-    def initialize(key, *args)
-      super(key, *args)
-      raise ArgumentError, "Marshalling redis integers does not make sense" if @options[:marshal]
-      redis.setnx(key, @options[:default]) unless @options[:default].nil? || @options[:init] === false
-    end
-
     # Returns the current value of the integer.
     def value
-      redis.get(key).to_i
+      val = redis.get(key)
+      val.nil? ? @options[:default] : val.to_i
     end
     alias_method :get, :value
 
@@ -37,6 +32,10 @@ class Redis
     def to_s; value.to_s; end
     alias_method :to_i, :value
 
+    def inspect
+      "#<Redis::Integer #{value.inspect}>"
+    end
+
     def nil?
       !redis.exists(key)
     end
@@ -50,6 +49,10 @@ class Redis
           value.to_i #{m} what.to_i
         end
       EndOverload
+    end
+
+    def method_missing(*args)
+      self.value.send(*args)
     end
 
   end
