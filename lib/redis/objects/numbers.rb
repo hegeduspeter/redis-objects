@@ -1,9 +1,9 @@
-# This is the class loader, for use as "include Redis::Objects::Integers"
-# For the object itself, see "Redis::Integer"
-require 'redis/integer'
+# This is the class loader, for use as "include Redis::Objects::Numbers"
+# For the object itself, see "Redis::Number"
+require 'redis/number'
 class Redis
   module Objects
-    module Integers
+    module Numbers
       def self.included(klass)
         klass.send :include, InstanceMethods
         klass.extend ClassMethods
@@ -13,15 +13,15 @@ class Redis
       module ClassMethods
         # Define a new integer.  It will function like a regular instance
         # method, so it can be used alongside ActiveRecord, DataMapper, etc.
-        def integer(name, options={})
-          redis_objects[name.to_sym] = options.merge(:type => :integer)
+        def number(name, options={})
+          redis_objects[name.to_sym] = options.merge(:type => :number)
           ivar_name = :"@#{name}"
 
           mod = Module.new do
             define_method(name) do
               instance_variable_get(ivar_name) or
                 instance_variable_set(ivar_name,
-                  Redis::Integer.new(
+                  Redis::Number.new(
                     redis_field_key(name), redis_field_redis(name), redis_options(name)
                   )
                 )

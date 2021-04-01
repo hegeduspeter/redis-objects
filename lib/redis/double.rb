@@ -2,14 +2,14 @@ require File.dirname(__FILE__) + '/base_object'
 
 class Redis
   #
-  # Class representing a Redis float.  This functions like a proxy class, in
-  # that you can say @object.float_name to get the value and then
-  # @object.float_name.increment to operate on it.  You can use this
-  # directly, or you can use the float :foo class method in your
-  # class to define a float.
+  # Class representing a Redis double.  This functions like a proxy class, in
+  # that you can say @object.double_name to get the value and then
+  # @object.double_name.increment to operate on it.  You can use this
+  # directly, or you can use the double :foo class method in your
+  # class to define a double.
   #
-  class Float < BaseObject
-    # Returns the current value of the float.
+  class Double < BaseObject
+    # Returns the current value of the double.
     def value
       val = redis.get(key)
       val.nil? ? @options[:default] : val.to_f
@@ -23,12 +23,12 @@ class Redis
     alias_method :set, :value=
 
     ##
-    # Proxy methods to help make @object.float == 10 work
+    # Proxy methods to help make @object.double == 10 work
     def to_s; value.to_s; end
     alias_method :to_f, :value
 
     def inspect
-      "#<Redis::Float #{value.inspect}>"
+      "#<Redis::Double #{value.inspect}>"
     end
 
     def nil?
@@ -41,7 +41,7 @@ class Redis
 
     ##
     # Math ops
-    # This needs to handle +/- either actual floats or other Redis::Floats
+    # This needs to handle +/- either actual doubles or other Redis::Doubles
     %w(+ - == < > <= >=).each do |m|
       class_eval <<-EndOverload
         def #{m}(what)

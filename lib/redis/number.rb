@@ -8,7 +8,7 @@ class Redis
   # directly, or you can use the integer :foo class method in your
   # class to define a integer.
   #
-  class Integer < BaseObject
+  class Number < BaseObject
     # Returns the current value of the integer.
     def value
       val = redis.get(key)
@@ -33,7 +33,7 @@ class Redis
     alias_method :to_i, :value
 
     def inspect
-      "#<Redis::Integer #{value.inspect}>"
+      "#<Redis::Number #{value.inspect}>"
     end
 
     def nil?
@@ -46,7 +46,7 @@ class Redis
 
     ##
     # Math ops
-    # This needs to handle +/- either actual integers or other Redis::Integers
+    # This needs to handle +/- either actual integers or other Redis::Numbers
     %w(+ - == < > <= >=).each do |m|
       class_eval <<-EndOverload
         def #{m}(what)
